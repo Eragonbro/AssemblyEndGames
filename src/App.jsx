@@ -9,6 +9,7 @@ import Words from './components/Words'
 import Headline from './components/Headline'
 import { useWindowSize } from 'react-use'
 import Confetti from 'react-confetti'
+import Modal from './components/Modal'
 
 function App() {
   
@@ -56,6 +57,7 @@ function App() {
     if (countries.length === 0) return;
     setRandomNumber(Math.floor(Math.random() * 25));
     setPlayPhase(phase[1]);
+    setOpenModal(false);
     console.log('playing started!')
     
     
@@ -99,6 +101,7 @@ function App() {
     //win scenario
     if (lettersObjects.length > 0 && lettersObjects.every(letter => letter.shown === true)) {
       setPlayPhase('won');
+      setOpenModal(true);
       console.log('You WIN!!!');
     }
     console.log('For your info:',lettersObjects);
@@ -142,6 +145,7 @@ function App() {
 
     if (count === 9) {
       setPlayPhase('lost');
+      setOpenModal(true);
     }
   }
   ,[count])
@@ -154,6 +158,8 @@ function App() {
   
 
   const { width, height } = useWindowSize();
+
+  let [openModal, setOpenModal] = React.useState(true);
 
   return (
     <>
@@ -179,13 +185,27 @@ function App() {
         
         <Letters letters={letters} onClick = {count < 9?handleClickedLetter:null} />
 
-        {playPhase === 'notStarted' && <button className='startButton' onClick={handleStart}>Start playing</button>}
         {(count === 9 || playPhase === 'won') && <button className='startButton' onClick={handleNewGame}>New game</button>}
 
         {playPhase === 'won' &&<Confetti
         width={width}
         height={height}
         />}
+
+        
+        {playPhase === 'notStarted' && openModal && <Modal buttonAction='Start playing' onClose={handleStart} className='startButton'>
+            <h2>Rules of the game:</h2>
+            <ul>
+              <li>Guess the country before all the languages are killed</li>
+              <li>As simple as that :D</li>
+            </ul>
+            <h3>Good luck! </h3>
+        </Modal>}
+        
+        {(count === 9 || playPhase === 'won') && openModal && <Modal buttonAction='New game' onClose={handleNewGame} className='startButton'>
+            {playPhase === 'won'? <h2>Congratulations 😉</h2>:<h2>Let's do it again. You're going to WIN!!</h2>}
+        </Modal>}
+      
       
       </div>
     </>
